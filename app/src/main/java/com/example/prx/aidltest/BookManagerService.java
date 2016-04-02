@@ -2,8 +2,10 @@ package com.example.prx.aidltest;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Parcel;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
@@ -11,6 +13,7 @@ import android.util.Log;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.jar.Pack200;
 
 
 /**
@@ -61,6 +64,26 @@ public class BookManagerService extends Service {
             mBookList.add(book);
         }
 
+
+        //在服务端的onTransact方法中进行权限验证
+       /* @Override
+        public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+            int check = checkCallingOrSelfPermission("com.example.prx.aidltest.ACCESS_BOOK_SERVICE");
+            if (check == PackageManager.PERMISSION_DENIED){
+                return false;
+            }
+
+            String packageName = null;
+            String[] packagesForUid = getPackageManager().getPackagesForUid(getCallingUid());
+            if (packagesForUid != null && packagesForUid.length > 0){
+                packageName  = packagesForUid[0];
+            }
+            if (!packageName.startsWith("com.prx")){
+                return false;
+            }
+            return super.onTransact(code,data,reply,flags);
+        }
+*/
         /**
          * 新添加的两个方法
          * @param listener
@@ -132,6 +155,13 @@ public class BookManagerService extends Service {
      */
     @Override
     public IBinder onBind(Intent intent) {
+        /**
+         * 1.首先在AndroidManifest.xml文件中声明连接服务的权限
+         */
+//        int check = checkCallingOrSelfPermission("com.example.prx.aidltest.ACCESS_BOOK_SERVICE");
+//        if (check == PackageManager.PERMISSION_DENIED){
+//            return null;
+//        }
         return mBinder;
     }
 

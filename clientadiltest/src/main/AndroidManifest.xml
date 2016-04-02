@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.prx.clientadiltest">
 
+    <!--想要绑定到服务,添加权限-->
+    <uses-permission android:name="com.example.prx.aidltest.permission.ACCESS_BOOK_SERVICE"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
