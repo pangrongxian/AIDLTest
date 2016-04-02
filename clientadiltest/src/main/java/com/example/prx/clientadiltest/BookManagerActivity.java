@@ -34,6 +34,13 @@ public class BookManagerActivity extends Activity {
             Log.d(TAG, "连接远程服务端，连接成功后将服务端返回的Binder对象转换成AIDL接口");
             /**
              * 3.然后就可以通过这个接口调用服务端的远程方法了
+             *
+             * 注意！ 客户端调用远程服务的方法，被调用的方法运行在服务端的Binder线程池中，同事客户端线程被挂起，
+             * 这个时候如果服务端的方法执行比较耗时，就会导致客户端线程长时间地阻塞在这里，
+             * 而如果这个客户端线程是UI线程的话，机会导致客户端ANR
+             *
+             * ！！！由于客户端的 onServiceConnected（）方法 和 onServiceDisconnected（）方法都运行在UI线程中，
+             * 所以也不可以在他们里面直接调用服务端的耗时操作。
              */
             IBookManager iBookManager = IBookManager.Stub.asInterface(service);
             try {
@@ -91,10 +98,15 @@ public class BookManagerActivity extends Activity {
 
     /**
      * 一、首先要注册 IOnNewBookArrivedListener 到远程服务端
-     * 这样，当有新书时服务端才能通知客户端,同时，我们要在Activity退出时解除这个歌注册
+     * 这样，当有新书时服务端才能通知客户端,同时，我们要在Activity退出时解除这个注册
      */
     private IOnNewBookArrivedListener mOnNewBookArrivedListener = new IOnNewBookArrivedListener.Stub() {
 
+        /**
+         *
+         * @param newBook
+         * @throws RemoteException
+         */
         @Override
         public void onNewBookArrived(Book newBook) throws RemoteException {
             mHandler.obtainMessage(MESSAGE_NEW_BOOK_ARRIVED,newBook).sendToTarget();
